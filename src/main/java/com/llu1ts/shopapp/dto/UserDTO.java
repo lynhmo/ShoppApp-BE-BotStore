@@ -34,10 +34,10 @@ public class UserDTO {
     Date dateOfBirth;
 
     @JsonProperty("facebook_account_id")
-    int facebookAccountId;
+    Long facebookAccountId;
 
     @JsonProperty("google_account_id")
-    int googleAccountId;
+    Long googleAccountId;
 
     @JsonProperty("role_id")
     Long roleId;

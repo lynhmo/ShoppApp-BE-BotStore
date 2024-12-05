@@ -1,5 +1,6 @@
 package com.llu1ts.shopapp.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,4 +18,6 @@ import java.time.LocalDateTime;
 public class BaseResponse {
     protected LocalDateTime createAt;
     protected LocalDateTime updateAt;
+    @JsonProperty("is_deleted")
+    protected Boolean isDeleted;
 }

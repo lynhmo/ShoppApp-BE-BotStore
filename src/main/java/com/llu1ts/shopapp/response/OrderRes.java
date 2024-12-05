@@ -1,27 +1,14 @@
 package com.llu1ts.shopapp.response;
 
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.llu1ts.shopapp.entity.OrderDetail;
-import com.llu1ts.shopapp.entity.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Date;
 
 @Data
-public class OrderRes extends BaseResponse {
+public class OrderRes extends BaseResponse{
 
     private Long id;
 
@@ -41,7 +28,7 @@ public class OrderRes extends BaseResponse {
     private String note;
 
     @JsonProperty("order_date")
-    private LocalDateTime orderDate;
+    private Date orderDate;
 
     private String status;
 

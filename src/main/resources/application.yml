@@ -1,3 +1,6 @@
+api:
+  path: /api/v${api.version}
+  version: 1
 spring:
   application:
     name: shop-app
@@ -17,10 +20,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-
 server:
   port: 2345
+
+
+
 logging:
   level:
     root: info
+
+jwt:
+  expiration: 10
+  secret-key: 2423bodsagtstor5642ellsdasfu1fts1114asdfvzxb
+#  second
+#    30 ngay = 30 * 24 * 60 * 60
+#    1 ngay = 24 * 60 * 60
+#    1 gio = 60 * 60

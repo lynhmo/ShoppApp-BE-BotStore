@@ -37,11 +37,14 @@ public class BaseEntity {
     @Column(name = "update_at")
     protected LocalDateTime updateAt;
 
+    @Column(name = "is_deleted")
+    protected Boolean isDeleted;
 
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     @PreUpdate

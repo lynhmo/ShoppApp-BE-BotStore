@@ -34,13 +34,13 @@ public class UserCtrl {
                 return ResponseEntity.badRequest().body(errors.toString());
             }
 
-            if (!user.getPassword().equals(user.getRetypePassword())){
+            if (!user.getPassword().equals(user.getRetypePassword())) {
                 return ResponseEntity.badRequest().body("Confirm password is not match");
             }
 
-            userService.creatUser(user);
+            userService.createUser(user);
 
-            return ResponseEntity.ok("Register successful for user: " + user.toString());
+            return ResponseEntity.ok("Register successful");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -56,7 +56,7 @@ public class UserCtrl {
                         .toList();
                 return ResponseEntity.badRequest().body(errors.toString());
             }
-            return ResponseEntity.ok("Login successful for user: " + user.toString());
+            return ResponseEntity.ok(userService.login(user));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -5,11 +5,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class OrderDTO {
 
     @JsonProperty("user_id")
-    @Min(value = 1, message = "User's ID must greater than zero")
+    @Min(value = 1, message = "User's ID must differ than zero")
     private Long userId;
 
     @JsonProperty("fullname")
@@ -29,6 +31,9 @@ public class OrderDTO {
     @Min(value = 0, message = "Total money must greater or equal to zero")
     private Float totalMoney;
 
+    @JsonProperty("shipping_date")
+    private LocalDate shippingDate;
+
     @JsonProperty("shipping_method")
     private String shippingMethod;
 
@@ -36,6 +41,6 @@ public class OrderDTO {
     private String shippingAddress;
 
     @JsonProperty("payment_method")
-    private String payment_method;
+    private String paymentMethod;
 }
 

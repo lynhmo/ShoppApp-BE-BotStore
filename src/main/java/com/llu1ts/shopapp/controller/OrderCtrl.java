@@ -2,7 +2,10 @@ package com.llu1ts.shopapp.controller;
 
 
 import com.llu1ts.shopapp.dto.OrderDTO;
+import com.llu1ts.shopapp.service.svc.OrderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -13,17 +16,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
 public class OrderCtrl {
+    private final OrderService orderService;
+
 
     @PostMapping
-    public ResponseEntity<?> insertProduct(@Valid @RequestBody OrderDTO order,
-                                                BindingResult bindingResult) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO order,
+                                         BindingResult bindingResult) {
         try {
             if (bindingResult.hasErrors()) {
                 List<String> errors = bindingResult.getFieldErrors()
@@ -32,16 +39,27 @@ public class OrderCtrl {
                         .toList();
                 return ResponseEntity.badRequest().body(errors.toString());
             }
-            return ResponseEntity.ok(order.toString());
+            return ResponseEntity.ok(orderService.createOrder(order));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getOrdersByUserId(@PathVariable int id) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getOrdersByUserId(@PathVariable long userId,
+                                               @RequestParam(defaultValue = "10") int size,
+                                               @RequestParam(defaultValue = "0") int page) {
         try {
-            return ResponseEntity.ok("get orders by user id");
+            return ResponseEntity.ok(orderService.getAllOrdersByUserId(userId, PageRequest.of(page, size)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> getOrderByOrderId(@PathVariable int orderId) {
+        try {
+            return ResponseEntity.ok(orderService.getOrderByOrderId(orderId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -49,9 +67,17 @@ public class OrderCtrl {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id,@Valid @RequestBody OrderDTO order) {
+    public ResponseEntity<?> updateOrder(@PathVariable int id, @Valid @RequestBody OrderDTO orderDto, BindingResult bindingResult) {
         try {
-            return ResponseEntity.ok("update order");
+            if (bindingResult.hasErrors()) {
+                List<String> errors = bindingResult.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errors.toString());
+            }
+
+            return ResponseEntity.ok(orderService.updateOrder(id, orderDto));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -61,7 +87,8 @@ public class OrderCtrl {
     public ResponseEntity<?> deleteOrder(@PathVariable int id) {
         //soft delete
         try {
-            return ResponseEntity.ok("delete order");
+            orderService.deleteOrder(id);
+            return ResponseEntity.ok("Order deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
