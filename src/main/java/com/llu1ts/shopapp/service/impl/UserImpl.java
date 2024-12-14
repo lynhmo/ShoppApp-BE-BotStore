@@ -22,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -41,19 +40,31 @@ public class UserImpl implements UserService {
     private long expirationTime;
 
     @Override
-    public void createUser(UserDTO user) throws DataNotFoundException {
-        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
-            throw new DataIntegrityViolationException("Phone number already exists");
+    public void createUser(UserDTO userDTO) throws DataNotFoundException {
+        if (userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())) {
+            throw new DataIntegrityViolationException("Username is already in use");
         }
-        User newUser = new User();
-        BeanUtils.copyProperties(user, newUser);
-        Role role = roleRepository.findById(user.getRoleId()).orElseThrow(() ->
+        // Để role user mặc định
+        Role role = roleRepository.findById(1L).orElseThrow(() ->
                 new DataNotFoundException("Role not found")
         );
+//        Role role = roleRepository.findById(userDTO.getRoleId()).orElseThrow(() ->
+//                new DataNotFoundException("Role not found")
+//        );
+
+        User newUser = new User();
+        BeanUtils.copyProperties(userDTO, newUser);
         newUser.setRole(role);
 
-        if (user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0) {
-            String password = passwordEncoder.encode(user.getPassword());
+        if (userDTO.getFacebookAccountId() == null) {
+            newUser.setFacebookAccountId(0L);
+        }
+        if (userDTO.getGoogleAccountId() == null) {
+            newUser.setGoogleAccountId(0L);
+        }
+
+        if (userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0) {
+            String password = passwordEncoder.encode(userDTO.getPassword());
             newUser.setPassword(password);
         }
         newUser.setIsActive(true); // set active user
@@ -82,8 +93,10 @@ public class UserImpl implements UserService {
         JwtResponse jwtResponse = new JwtResponse();
         String token = jwtTokenUtils.generateToken(currentUser);
         long expTime = jwtTokenUtils.getExpirationDate(token).getTime();
+        String role = jwtTokenUtils.getRole(token) == null ? "" : jwtTokenUtils.getRole(token);
+        jwtResponse.setRole(role);
         jwtResponse.setAccessToken(token);
-        jwtResponse.setExpiresIn(expTime-System.currentTimeMillis());
+        jwtResponse.setExpiresIn(expTime - System.currentTimeMillis());
         return jwtResponse;
     }
 }

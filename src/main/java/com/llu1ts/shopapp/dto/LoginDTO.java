@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class LoginDTO {
 
-    @JsonProperty("phone_number")
-    @NotBlank(message = "Phone number is require")
+    @JsonProperty("username")
+    @NotBlank(message = "username is require")
     private String phoneNumber;
 
     @NotBlank(message = "Password cannot be blank")

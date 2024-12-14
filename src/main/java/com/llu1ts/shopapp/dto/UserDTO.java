@@ -3,22 +3,26 @@ package com.llu1ts.shopapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
-/**
- * DTO for {@link com.llu1ts.shopapp.entity.User}
- */
-
-@Value
+@Setter
+@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
 
     @JsonProperty("fullname")
     String fullName;
 
-    @JsonProperty("phone_number")
-    @NotBlank(message = "Phone number is require")
+    @JsonProperty("username")
+    @NotBlank(message = "username is require")
     String phoneNumber;
 
     String address;
@@ -27,7 +31,7 @@ public class UserDTO {
     String password;
 
     @NotBlank(message = "Confirm password cannot be blank")
-    @JsonProperty("retype_password")
+    @JsonProperty("retypePassword")
     String retypePassword;
 
     @JsonProperty("date_of_birth")

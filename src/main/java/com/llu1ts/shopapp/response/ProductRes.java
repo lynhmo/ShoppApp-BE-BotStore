@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 
 @Data
 public class ProductRes extends BaseResponse {
+    private Long id;
     private String name;
 
     private Float price;

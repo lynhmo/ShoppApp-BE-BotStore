@@ -12,4 +12,6 @@ public class JwtResponse {
     private Long expiresIn;
     @JsonProperty("time_unit")
     private final String timeUnit = "milliseconds";
+    @JsonProperty("role")
+    private String role;
 }

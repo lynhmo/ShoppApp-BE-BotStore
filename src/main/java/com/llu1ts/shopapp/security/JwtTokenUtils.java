@@ -36,6 +36,7 @@ public class JwtTokenUtils {
         claims.put("username", user.getUsername());
         claims.put("phoneNumber", user.getPhoneNumber());
         claims.put("password", user.getPassword());
+        claims.put("role", user.getRole().getName());
 
         try {
             return Jwts.builder()
@@ -96,5 +97,10 @@ public class JwtTokenUtils {
         String username = getUsername(token);
         return (username.equals(userDetails.getUsername())
                 && !isTokenExpired(token));
+    }
+
+    //get Role
+    public String getRole(String token) {
+        return extractClaims(token, claims -> claims.get("role")).toString();
     }
 }

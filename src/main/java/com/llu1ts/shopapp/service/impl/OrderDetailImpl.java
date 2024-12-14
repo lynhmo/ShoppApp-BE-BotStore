@@ -55,8 +55,16 @@ public class OrderDetailImpl implements OrderDetailService {
             int currentQuantities = tempOrderDetail.getNumberOfProducts();
             int newQuantities = orderDetailDTO.getNumberOfProducts();
 
+
+            //revoke the order detail if it deleted
+            if (Boolean.TRUE.equals(tempOrderDetail.getIsDeleted())) {
+                tempOrderDetail.setIsDeleted(false);
+                tempOrderDetail.setNumberOfProducts(newQuantities);
+            } else {
+                tempOrderDetail.setNumberOfProducts(currentQuantities + newQuantities);
+            }
+
             // set the number of prod
-            tempOrderDetail.setNumberOfProducts(currentQuantities + newQuantities);
 
             //save
             orderDetailRepository.save(tempOrderDetail);

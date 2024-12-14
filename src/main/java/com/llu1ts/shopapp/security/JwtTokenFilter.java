@@ -2,6 +2,7 @@ package com.llu1ts.shopapp.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.llu1ts.shopapp.entity.User;
 import com.llu1ts.shopapp.exception.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,6 +44,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+
         // Lấy ra những path được bypass check token
         if (isBypassToken(request)) {
             filterChain.doFilter(request, response);
@@ -71,7 +73,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (userName != null
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+            User userDetails = (User) userDetailsService.loadUserByUsername(userName);
             // Valid token (check time, check có user tồn tại hay không)
             if (jwtTokenUtils.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication =

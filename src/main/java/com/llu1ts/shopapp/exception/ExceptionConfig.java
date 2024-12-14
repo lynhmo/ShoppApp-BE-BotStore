@@ -1,5 +1,6 @@
 package com.llu1ts.shopapp.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -59,6 +60,16 @@ public class ExceptionConfig {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorMsg(e.getMessage());
         errorResponse.setErrorCode("5");
+        return errorResponse;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseBody
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAuthorizationException(DataIntegrityViolationException e) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorMsg(e.getMessage());
+        errorResponse.setErrorCode("6");
         return errorResponse;
     }
 }
