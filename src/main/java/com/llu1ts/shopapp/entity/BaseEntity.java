@@ -1,5 +1,6 @@
 package com.llu1ts.shopapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
@@ -24,7 +26,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public class BaseEntity {
+public class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +34,11 @@ public class BaseEntity {
 
 
     @Column(name = "create_at")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     protected LocalDateTime createAt;
 
     @Column(name = "update_at")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     protected LocalDateTime updateAt;
 
     @Column(name = "is_deleted")

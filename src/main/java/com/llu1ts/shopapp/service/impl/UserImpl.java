@@ -10,8 +10,10 @@ import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.repo.RoleRepository;
 import com.llu1ts.shopapp.repo.UserRepository;
 import com.llu1ts.shopapp.response.JwtResponse;
+import com.llu1ts.shopapp.response.UserResponse;
 import com.llu1ts.shopapp.security.JwtTokenUtils;
 import com.llu1ts.shopapp.service.svc.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +23,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
@@ -98,5 +102,26 @@ public class UserImpl implements UserService {
         jwtResponse.setAccessToken(token);
         jwtResponse.setExpiresIn(expTime - System.currentTimeMillis());
         return jwtResponse;
+    }
+
+    @Override
+    public UserResponse getUserById(Long id) throws DataNotFoundException {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String uid = jwtTokenUtils.getUserId(request.getHeader("Authorization").substring(7));
+        if (!uid.equals(id.toString())) {
+            throw new AuthorizationException("Cannot get data from other user");
+        }
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new DataNotFoundException("User not found");
+        }
+        UserResponse userResponse = new UserResponse();
+        BeanUtils.copyProperties(user.get(), userResponse);
+        return userResponse;
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UserDTO user) throws DataNotFoundException {
+        return null;
     }
 }

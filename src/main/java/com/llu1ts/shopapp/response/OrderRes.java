@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Data
-public class OrderRes extends BaseResponse{
+public class OrderRes extends BaseResponse {
 
     private Long id;
 

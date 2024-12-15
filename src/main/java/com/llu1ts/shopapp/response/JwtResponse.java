@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 public class JwtResponse {
+    @JsonProperty("time_unit")
+    private final String timeUnit = "milliseconds";
     @JsonProperty("access_token")
     private String accessToken;
     @JsonProperty("expires_in")
     private Long expiresIn;
-    @JsonProperty("time_unit")
-    private final String timeUnit = "milliseconds";
     @JsonProperty("role")
     private String role;
 }

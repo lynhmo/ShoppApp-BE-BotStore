@@ -22,5 +22,4 @@ public class ShopAppApplication {
     ModelMapper modelMapper() {
         return new ModelMapper();
     }
-
 }

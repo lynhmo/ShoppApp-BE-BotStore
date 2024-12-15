@@ -92,6 +92,11 @@ public class JwtTokenUtils {
         return extractClaims(token, Claims::getSubject);
     }
 
+    //lay ra username(phone number)
+    public String getUserId(String token) {
+        return extractClaims(token, claims -> claims.get("id")).toString();
+    }
+
     // Check token có thuộc về user nào không
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = getUsername(token);

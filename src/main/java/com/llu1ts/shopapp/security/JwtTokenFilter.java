@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -30,12 +29,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    @Value("${api.path}")
-    private String apiContextPath;
-
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
     private final ObjectMapper objectMapper;
+    @Value("${api.path}")
+    private String apiContextPath;
 
     @SneakyThrows
     @Override

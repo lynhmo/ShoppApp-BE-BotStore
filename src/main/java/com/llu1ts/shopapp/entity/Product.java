@@ -3,6 +3,7 @@ package com.llu1ts.shopapp.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,9 @@ public class Product extends BaseEntity {
 
     private Float price;
 
-    private String thumbnail;
+    @Lob
+    private byte[] thumbnail;
+//    private String thumbnail;
 
     private String description;
 

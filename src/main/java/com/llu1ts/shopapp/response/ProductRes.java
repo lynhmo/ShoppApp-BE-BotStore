@@ -12,7 +12,7 @@ public class ProductRes extends BaseResponse {
 
     private Float price;
 
-    private String thumbnail;
+    private byte[] thumbnail;
 
     private String description;
 

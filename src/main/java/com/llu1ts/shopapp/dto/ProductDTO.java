@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -20,7 +21,7 @@ public class ProductDTO {
     @Max(value = 100000000, message = "Price must be lower than 100000000 or equal to 100000000")
     private Float price;
 
-    private String thumbnail;
+    private MultipartFile thumbnail;
 
     private String description;
 

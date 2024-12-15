@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,8 +39,10 @@ public class ProductCtrl {
 
     @GetMapping
     public ResponseEntity<ApiPageResponse<ProductRes>> getAllProduct(@RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(productService.getAllProducts(PageRequest.of(page, size)));
+                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(defaultValue = "0") int disable
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(PageRequest.of(page, size), disable));
     }
 
     @GetMapping("/{prodId}")
@@ -49,30 +52,42 @@ public class ProductCtrl {
 
     @PostMapping
     public ResponseEntity<?> insertProduct(@Valid @RequestBody ProductDTO productDTO,
-                                           BindingResult bindingResult) {
-        try {
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
-            }
-            return ResponseEntity.ok(productService.create(productDTO));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+                                           BindingResult bindingResult) throws DataNotFoundException {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errors.toString());
         }
+        return ResponseEntity.ok(productService.create(productDTO));
+    }
+
+
+    @PostMapping(value = "/v2")
+    public ResponseEntity<?> insertProductWithImage(@Valid @ModelAttribute ProductDTO productDTO,
+                                                    BindingResult bindingResult) throws DataNotFoundException, IOException {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errors.toString());
+        }
+        return ResponseEntity.ok(productService.createV2(productDTO));
     }
 
     @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> insertProductImage(@PathVariable(value = "id") long productId,
                                                 @ModelAttribute ImageUpload imageUpload) throws Exception {
-        try {
-            return ResponseEntity.ok(productService.createProductImage(productId, imageUpload));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.ok(productService.createProductImage(productId, imageUpload));
     }
+
+    @GetMapping("/images/{prodId}")
+    public ResponseEntity<ProductRes> getProduct(@PathVariable long prodId) throws Exception {
+        return ResponseEntity.ok(productService.getProductById(prodId));
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable long id, @RequestBody ProductDTO product) throws DataNotFoundException {

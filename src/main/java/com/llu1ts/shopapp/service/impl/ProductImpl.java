@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -66,6 +65,23 @@ public class ProductImpl implements ProductService {
     }
 
     @Override
+    public ProductRes createV2(ProductDTO dto) throws DataNotFoundException, IOException {
+        Category category = categoryRepository
+                .findById(dto.getCategoryId())
+                .orElseThrow(() ->
+                        new DataNotFoundException("Category not found with id: " + dto.getCategoryId()));
+        if (Boolean.TRUE.equals(category.getIsDeleted())) {
+            throw new IllegalArgumentException("Category is deleted");
+        }
+        Product newProduct = new Product();
+        BeanUtils.copyProperties(dto, newProduct);
+        newProduct.setCategory(category);
+        byte[] thumbnailBytes = dto.getThumbnail().getBytes();
+        newProduct.setThumbnail(thumbnailBytes);
+        return modelMapper.map(productRepository.save(newProduct), ProductRes.class);
+    }
+
+    @Override
     public ProductRes getProductById(long id) throws Exception {
         Product product = productRepository.findById(id).orElseThrow(() ->
                 new DataNotFoundException("Cannot found product with id: " + id));
@@ -73,9 +89,18 @@ public class ProductImpl implements ProductService {
     }
 
     @Override
-    public ApiPageResponse<ProductRes> getAllProducts(PageRequest pageRequest) {
+    public ApiPageResponse<ProductRes> getAllProducts(PageRequest pageRequest, int disable) {
         ApiPageResponse<ProductRes> returnList = new ApiPageResponse<>();
-        Page<Product> products = productRepository.findAll(pageRequest);
+        Page<Product> products;
+        if (disable == 1) {
+            products = productRepository.findAll(pageRequest);
+        } else {
+            products = productRepository.findAllByIsDeleted(false, pageRequest);
+        }
+        return modelCopy(products, returnList);
+    }
+
+    private ApiPageResponse<ProductRes> modelCopy(Page<Product> products, ApiPageResponse<ProductRes> returnList) {
         List<ProductRes> productList = products.getContent().stream()
                 .map(product -> {
                     ProductRes newProd = new ProductRes();
