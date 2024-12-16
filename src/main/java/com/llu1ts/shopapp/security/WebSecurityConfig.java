@@ -140,6 +140,7 @@ public class WebSecurityConfig {
     private String[] getUserPutEndpoints() {
         return new String[]{
                 apiContextPath + "/orders/*",
+                apiContextPath + "/orders/status",
                 apiContextPath + "/order-details/*"
         };
     }

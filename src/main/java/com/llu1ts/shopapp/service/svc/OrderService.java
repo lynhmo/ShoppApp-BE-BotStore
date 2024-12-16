@@ -17,4 +17,5 @@ public interface OrderService {
 
     OrderRes updateOrder(long orderId, OrderDTO orderDTO) throws DataNotFoundException;
 
+    void updateOrderStatus(long userid,long orderId, String orderStatus) throws DataNotFoundException;
 }

@@ -5,6 +5,7 @@ import com.llu1ts.shopapp.dto.OrderDTO;
 import com.llu1ts.shopapp.entity.Order;
 import com.llu1ts.shopapp.entity.OrderStatus;
 import com.llu1ts.shopapp.entity.User;
+import com.llu1ts.shopapp.exception.AuthorizationException;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.repo.OrderRepository;
 import com.llu1ts.shopapp.repo.UserRepository;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class OrderImpl implements OrderService {
 
     @Override
     public OrderRes createOrder(OrderDTO orderDTO) throws DataNotFoundException {
-        // check user co tontai hay khong
+        // check user co ton tai hay khong
         User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(() ->
                 new DataNotFoundException("User not found"));
 
@@ -44,10 +44,10 @@ public class OrderImpl implements OrderService {
         order.setOrderDate(new Date(System.currentTimeMillis()));
         order.setStatus(OrderStatus.PENDING);
         order.setActive(true);
-        LocalDate shippingDate = orderDTO.getShippingDate() == null ? LocalDate.now() : orderDTO.getShippingDate();
-        if (shippingDate.isBefore(LocalDate.now())) {
-            throw new DataNotFoundException("Shipping date must be at least today!");
-        }
+//        LocalDate shippingDate = orderDTO.getShippingDate() == null ? LocalDate.now() : orderDTO.getShippingDate();
+//        if (shippingDate.isBefore(LocalDate.now())) {
+//            throw new DataNotFoundException("Shipping date must be at least today!");
+//        }
         BeanUtils.copyProperties(orderDTO, order);
         orderRepository.save(order);
 
@@ -94,6 +94,44 @@ public class OrderImpl implements OrderService {
                 new DataNotFoundException("User not exist"));
         BeanUtils.copyProperties(orderDTO, existOrder);
         existOrder.setUserId(user);
-        return modelMapper.map(orderRepository.save(existOrder), OrderRes.class);
+        Order updatedOrder = orderRepository.save(existOrder);
+
+        return modelMapper.map(updatedOrder, OrderRes.class);
+    }
+
+    @Override
+    public void updateOrderStatus(long userid, long orderId, String orderStatus) throws DataNotFoundException {
+        if (orderStatus.equals(OrderStatus.PENDING)) {
+            throw new DataNotFoundException("Not allowed to change order status to pending");
+        }
+        User user = userRepository.findById(userid).orElseThrow(() -> new DataNotFoundException("User not exist"));
+        Order existOrder = orderRepository.findById(orderId).orElseThrow(() ->
+                new DataNotFoundException("Order not found"));
+
+
+        if (!existOrder.getUserId().getId().equals(userid)) {
+            throw new AuthorizationException("Not allowed to update order status");
+        }
+
+        existOrder.setStatus(orderStatus);
+        orderRepository.save(existOrder);
+
+        List<Order> lstPending = orderRepository.findByStatusAndUserId("pending", user);
+        if (lstPending.size() > 1) {
+            throw new DataNotFoundException("PLease contact admin to update order status");
+        }
+
+        if (!orderStatus.equalsIgnoreCase(OrderStatus.PENDING)&& lstPending.isEmpty()) {
+            Order order = new Order();
+            order.setUserId(user);
+            order.setOrderDate(new Date(System.currentTimeMillis()));
+            order.setStatus(OrderStatus.PENDING);
+            order.setActive(true);
+            order.setAddress("");
+            order.setPhoneNumber(user.getPhoneNumber());
+            orderRepository.save(order);
+        }
+
+
     }
 }

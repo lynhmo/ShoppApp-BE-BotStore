@@ -2,6 +2,8 @@ package com.llu1ts.shopapp.controller;
 
 
 import com.llu1ts.shopapp.dto.OrderDTO;
+import com.llu1ts.shopapp.exception.DataNotFoundException;
+import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +69,9 @@ public class OrderCtrl {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id, @Valid @RequestBody OrderDTO orderDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateOrder(@PathVariable int id,
+                                         @Valid @RequestBody OrderDTO orderDto,
+                                         BindingResult bindingResult) {
         try {
             if (bindingResult.hasErrors()) {
                 List<String> errors = bindingResult.getFieldErrors()
@@ -81,6 +85,14 @@ public class OrderCtrl {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PutMapping("/status")
+    public ResponseEntity<?> updateOrderStatus(@RequestParam long orderId,
+                                               @RequestParam long userId,
+                                               @RequestParam String orderStatus) throws DataNotFoundException {
+        orderService.updateOrderStatus(userId, orderId, orderStatus);
+        return ResponseEntity.ok(new SuccessResponse("Update order to " + orderStatus, "1", null));
     }
 
     @DeleteMapping("/{id}")

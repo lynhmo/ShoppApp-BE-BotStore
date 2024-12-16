@@ -2,16 +2,19 @@ package com.llu1ts.shopapp.service.impl;
 
 
 import com.llu1ts.shopapp.dto.LoginDTO;
+import com.llu1ts.shopapp.dto.OrderDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
 import com.llu1ts.shopapp.entity.Role;
 import com.llu1ts.shopapp.entity.User;
 import com.llu1ts.shopapp.exception.AuthorizationException;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
+import com.llu1ts.shopapp.repo.OrderRepository;
 import com.llu1ts.shopapp.repo.RoleRepository;
 import com.llu1ts.shopapp.repo.UserRepository;
 import com.llu1ts.shopapp.response.JwtResponse;
 import com.llu1ts.shopapp.response.UserResponse;
 import com.llu1ts.shopapp.security.JwtTokenUtils;
+import com.llu1ts.shopapp.service.svc.OrderService;
 import com.llu1ts.shopapp.service.svc.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -33,6 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserImpl implements UserService {
 
+    private final OrderService orderService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,12 +53,10 @@ public class UserImpl implements UserService {
             throw new DataIntegrityViolationException("Username is already in use");
         }
         // Để role user mặc định
-        Role role = roleRepository.findById(1L).orElseThrow(() ->
+        String user = "USER";
+        Role role = roleRepository.findByName(user.toUpperCase()).orElseThrow(() ->
                 new DataNotFoundException("Role not found")
         );
-//        Role role = roleRepository.findById(userDTO.getRoleId()).orElseThrow(() ->
-//                new DataNotFoundException("Role not found")
-//        );
 
         User newUser = new User();
         BeanUtils.copyProperties(userDTO, newUser);
@@ -62,9 +64,11 @@ public class UserImpl implements UserService {
 
         if (userDTO.getFacebookAccountId() == null) {
             newUser.setFacebookAccountId(0L);
+            userDTO.setFacebookAccountId(0L);
         }
         if (userDTO.getGoogleAccountId() == null) {
             newUser.setGoogleAccountId(0L);
+            userDTO.setGoogleAccountId(0L);
         }
 
         if (userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0) {
@@ -73,6 +77,16 @@ public class UserImpl implements UserService {
         }
         newUser.setIsActive(true); // set active user
         userRepository.save(newUser);
+
+        // Đồng thời tạo cho user 1 order/cart
+
+        OrderDTO orderDTO = OrderDTO.builder()
+                .userId(newUser.getId())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .address("")
+                .build();
+
+        orderService.createOrder(orderDTO);
     }
 
     @Override

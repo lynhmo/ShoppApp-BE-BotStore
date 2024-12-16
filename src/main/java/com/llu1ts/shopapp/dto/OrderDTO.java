@@ -3,11 +3,13 @@ package com.llu1ts.shopapp.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
+@Builder
 public class OrderDTO {
 
     @JsonProperty("user_id")
@@ -20,15 +22,17 @@ public class OrderDTO {
     private String email;
 
     @JsonProperty("phone_number")
-    @NotBlank(message = "Phone number is require")
+    @NotBlank(message = "username is require")
     private String phoneNumber;
 
     private String address;
 
     private String note;
 
+    private String status;
+
     @JsonProperty("total_money")
-    @Min(value = 0, message = "Total money must greater or equal to zero")
+//    @Min(value = 0, message = "Total money must greater or equal to zero")
     private Float totalMoney;
 
     @JsonProperty("shipping_date")
