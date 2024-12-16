@@ -4,6 +4,8 @@ package com.llu1ts.shopapp.service.impl;
 import com.llu1ts.shopapp.dto.LoginDTO;
 import com.llu1ts.shopapp.dto.OrderDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
+import com.llu1ts.shopapp.entity.Order;
+import com.llu1ts.shopapp.entity.OrderStatus;
 import com.llu1ts.shopapp.entity.Role;
 import com.llu1ts.shopapp.entity.User;
 import com.llu1ts.shopapp.exception.AuthorizationException;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -36,7 +39,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserImpl implements UserService {
 
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -80,13 +83,14 @@ public class UserImpl implements UserService {
 
         // Đồng thời tạo cho user 1 order/cart
 
-        OrderDTO orderDTO = OrderDTO.builder()
-                .userId(newUser.getId())
-                .phoneNumber(userDTO.getPhoneNumber())
-                .address("")
-                .build();
-
-        orderService.createOrder(orderDTO);
+        Order order = new Order();
+        order.setUserId(newUser);
+        order.setOrderDate(new Date(System.currentTimeMillis()));
+        order.setStatus(OrderStatus.PENDING);
+        order.setActive(true);
+        order.setAddress("");
+        order.setPhoneNumber(newUser.getPhoneNumber());
+        orderRepository.save(order);
     }
 
     @Override
