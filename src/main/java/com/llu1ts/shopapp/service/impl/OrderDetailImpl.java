@@ -72,7 +72,7 @@ public class OrderDetailImpl implements OrderDetailService {
             orderDetailRepository.save(tempOrderDetail);
 
 
-            orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+            orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(), false), order.getId());
 
 
             // map the response and return
@@ -87,10 +87,15 @@ public class OrderDetailImpl implements OrderDetailService {
             BeanUtils.copyProperties(orderDetailDTO, orderDetail);
             orderDetail.setOrder(order);
             orderDetail.setProduct(product);
+            orderDetail.setPrice(product.getPrice());
+            orderDetail.setTotalMoney(product.getPrice() * orderDetailDTO.getNumberOfProducts());
             orderDetailRepository.save(orderDetail);
 
-
-            orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+            Float currentOrderTotalMoney = orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(), false);
+            if (currentOrderTotalMoney == null) {
+                currentOrderTotalMoney = (float) 0;
+            }
+            orderRepository.updateTotalMoneyById(currentOrderTotalMoney, order.getId());
 
 
             OrderDetailRes orderDetailRes = new OrderDetailRes();
@@ -175,7 +180,7 @@ public class OrderDetailImpl implements OrderDetailService {
         // save
         orderDetailRepository.save(orderDetail);
 
-        orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+        orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(), false), order.getId());
 
         // Response
         OrderDetailRes orderDetailRes = new OrderDetailRes();

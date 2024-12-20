@@ -134,7 +134,8 @@ public class WebSecurityConfig {
     private String[] getUserPostEndpoints() {
         return new String[]{
                 apiContextPath + "/orders",
-                apiContextPath + "/order-details"
+                apiContextPath + "/order-details",
+                apiContextPath + "/order-details/*",
         };
     }
 
