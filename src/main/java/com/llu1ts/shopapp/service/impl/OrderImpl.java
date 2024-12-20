@@ -44,10 +44,6 @@ public class OrderImpl implements OrderService {
         order.setOrderDate(new Date(System.currentTimeMillis()));
         order.setStatus(OrderStatus.PENDING);
         order.setActive(true);
-//        LocalDate shippingDate = orderDTO.getShippingDate() == null ? LocalDate.now() : orderDTO.getShippingDate();
-//        if (shippingDate.isBefore(LocalDate.now())) {
-//            throw new DataNotFoundException("Shipping date must be at least today!");
-//        }
         BeanUtils.copyProperties(orderDTO, order);
         orderRepository.save(order);
 

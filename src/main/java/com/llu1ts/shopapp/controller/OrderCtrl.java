@@ -32,59 +32,42 @@ public class OrderCtrl {
 
     @PostMapping
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO order,
-                                         BindingResult bindingResult) {
-        try {
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
-            }
-            return ResponseEntity.ok(orderService.createOrder(order));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+                                         BindingResult bindingResult) throws DataNotFoundException {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errors.toString());
         }
+        return ResponseEntity.ok(orderService.createOrder(order));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getOrdersByUserId(@PathVariable long userId,
                                                @RequestParam(defaultValue = "10") int size,
-                                               @RequestParam(defaultValue = "0") int page) {
-        try {
-            return ResponseEntity.ok(orderService.getAllOrdersByUserId(userId, PageRequest.of(page, size)));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+                                               @RequestParam(defaultValue = "0") int page) throws DataNotFoundException {
+        return ResponseEntity.ok(orderService.getAllOrdersByUserId(userId, PageRequest.of(page, size)));
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrderByOrderId(@PathVariable int orderId) {
-        try {
-            return ResponseEntity.ok(orderService.getOrderByOrderId(orderId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> getOrderByOrderId(@PathVariable int orderId) throws DataNotFoundException {
+        return ResponseEntity.ok(orderService.getOrderByOrderId(orderId));
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id,
                                          @Valid @RequestBody OrderDTO orderDto,
-                                         BindingResult bindingResult) {
-        try {
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
-            }
-
-            return ResponseEntity.ok(orderService.updateOrder(id, orderDto));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+                                         BindingResult bindingResult) throws DataNotFoundException {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errors.toString());
         }
+        return ResponseEntity.ok(orderService.updateOrder(id, orderDto));
     }
 
     @PutMapping("/status")
@@ -96,13 +79,9 @@ public class OrderCtrl {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable int id) {
-        //soft delete
-        try {
-            orderService.deleteOrder(id);
-            return ResponseEntity.ok("Order deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> deleteOrder(@PathVariable int id) throws DataNotFoundException {
+
+        orderService.deleteOrder(id);
+        return ResponseEntity.ok("Order deleted successfully");
     }
 }

@@ -13,7 +13,6 @@ import com.llu1ts.shopapp.response.OrderDetailRes;
 import com.llu1ts.shopapp.service.svc.OrderDetailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +28,6 @@ public class OrderDetailImpl implements OrderDetailService {
     private final OrderDetailRepository orderDetailRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public OrderDetailRes createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
@@ -66,14 +64,23 @@ public class OrderDetailImpl implements OrderDetailService {
 
             // set the number of prod
 
+
+            // update total money
+            tempOrderDetail.setTotalMoney(tempOrderDetail.getProduct().getPrice() * tempOrderDetail.getNumberOfProducts());
+
             //save
             orderDetailRepository.save(tempOrderDetail);
+
+
+            orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+
 
             // map the response and return
             OrderDetailRes orderDetailRes = new OrderDetailRes();
             BeanUtils.copyProperties(tempOrderDetail, orderDetailRes);
             orderDetailRes.setOrder(order.getId());
             orderDetailRes.setProduct(product.getId());
+            orderDetailRes.setTotalMoney(tempOrderDetail.getTotalMoney().longValue());
             return orderDetailRes;
         } else {
             OrderDetail orderDetail = new OrderDetail();
@@ -81,10 +88,16 @@ public class OrderDetailImpl implements OrderDetailService {
             orderDetail.setOrder(order);
             orderDetail.setProduct(product);
             orderDetailRepository.save(orderDetail);
+
+
+            orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+
+
             OrderDetailRes orderDetailRes = new OrderDetailRes();
             BeanUtils.copyProperties(orderDetail, orderDetailRes);
             orderDetailRes.setOrder(order.getId());
             orderDetailRes.setProduct(product.getId());
+            orderDetailRes.setTotalMoney(orderDetail.getTotalMoney().longValue());
             return orderDetailRes;
         }
     }
@@ -97,6 +110,7 @@ public class OrderDetailImpl implements OrderDetailService {
         BeanUtils.copyProperties(orderDetail, orderDetailRes);
         orderDetailRes.setOrder(orderDetail.getOrder().getId());
         orderDetailRes.setProduct(orderDetail.getProduct().getId());
+        orderDetailRes.setTotalMoney(orderDetail.getTotalMoney().longValue());
         return orderDetailRes;
     }
 
@@ -105,12 +119,15 @@ public class OrderDetailImpl implements OrderDetailService {
         if (!orderRepository.existsById(orderId)) {
             throw new DataNotFoundException("Order not found");
         }
-        Page<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId, pageable);
+        Page<OrderDetail> orderDetails = orderDetailRepository.findByOrderIdAndIsDeleted(orderId, false, pageable);
         ApiPageResponse<OrderDetailRes> apiPageResponse = new ApiPageResponse<>();
         List<OrderDetailRes> orderDetailResList = orderDetails.getContent().stream()
                 .map(orderDetail -> {
                     OrderDetailRes orderDetailRes = new OrderDetailRes();
                     BeanUtils.copyProperties(orderDetail, orderDetailRes);
+                    orderDetailRes.setProduct(orderDetail.getProduct().getId());
+                    orderDetailRes.setOrder(orderDetail.getOrder().getId());
+                    orderDetailRes.setTotalMoney(orderDetail.getTotalMoney().longValue());
                     return orderDetailRes;
                 }).toList();
         BeanUtils.copyProperties(orderDetails, apiPageResponse);
@@ -119,10 +136,19 @@ public class OrderDetailImpl implements OrderDetailService {
     }
 
     @Override
-    public void deleteOrderDetail(long orderId) throws DataNotFoundException {
-        OrderDetail orderDetail = orderDetailRepository.findById(orderId).orElseThrow(() -> new DataNotFoundException("Order not found"));
+    public void deleteOrderDetail(long orderDetailId) throws DataNotFoundException {
+        OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new DataNotFoundException("Order not found"));
         orderDetail.setIsDeleted(true);
+
+        orderRepository.updateTotalMoneyById(orderDetail.getOrder().getTotalMoney() - orderDetail.getTotalMoney(), orderDetail.getOrder().getId());
         orderDetailRepository.save(orderDetail);
+    }
+
+
+    @Override
+    public void deleteAllOrderDetail(long orderId) throws DataNotFoundException {
+        orderDetailRepository.deleteByOrderId(orderId);
+        orderRepository.updateTotalMoneyById((float) 0, orderId);
     }
 
     @Override
@@ -135,14 +161,31 @@ public class OrderDetailImpl implements OrderDetailService {
         );
         OrderDetail orderDetail = orderDetailRepository.findById(orderId).orElseThrow(() ->
                 new DataNotFoundException("Detail order not found"));
+
+        // Copy prop
+        BeanUtils.copyProperties(orderDetailDTO, orderDetail);
+        // Set các thông tin thiếu
         orderDetail.setOrder(order);
         orderDetail.setProduct(product);
+        // Sửa lại thông tin tổng tiền trên sản phẩm
+        orderDetail.setTotalMoney(orderDetailDTO.getNumberOfProducts() * product.getPrice());
+
+        // sửa lại thông tin sản phẩm
+        orderDetail.setPrice(product.getPrice());
+        // save
         orderDetailRepository.save(orderDetail);
-        BeanUtils.copyProperties(orderDetailDTO, orderDetail);
+
+        orderRepository.updateTotalMoneyById(orderDetailRepository.getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(order.getId(),false), order.getId());
+
+        // Response
         OrderDetailRes orderDetailRes = new OrderDetailRes();
+        // từ E -> Response
         BeanUtils.copyProperties(orderDetail, orderDetailRes);
+        // Thông tin thiếu
         orderDetailRes.setOrder(order.getId());
         orderDetailRes.setProduct(product.getId());
+        orderDetailRes.setTotalMoney(orderDetail.getTotalMoney().longValue());
+
         return orderDetailRes;
     }
 }

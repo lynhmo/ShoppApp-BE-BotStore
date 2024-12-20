@@ -9,13 +9,15 @@ import org.springframework.data.domain.Pageable;
 public interface OrderDetailService {
     OrderDetailRes createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException;
 
-    OrderDetailRes getOrderDetail(long orderId) throws DataNotFoundException;
+    OrderDetailRes getOrderDetail(long orderDetailId) throws DataNotFoundException;
 
-    ApiPageResponse<OrderDetailRes> getAllOrderDetailByOrderId(long orderId, Pageable pageable) throws DataNotFoundException;
+    ApiPageResponse<OrderDetailRes> getAllOrderDetailByOrderId(long orderDetailId, Pageable pageable) throws DataNotFoundException;
 
-    void deleteOrderDetail(long orderId) throws DataNotFoundException;
+    void deleteOrderDetail(long orderDetailId) throws DataNotFoundException;
 
-    OrderDetailRes updateOrderDetail(long orderId, OrderDetailDTO orderDetailDTO) throws DataNotFoundException;
+    void deleteAllOrderDetail(long orderId) throws DataNotFoundException;
+
+    OrderDetailRes updateOrderDetail(long orderDetailsId, OrderDetailDTO orderDetailDTO) throws DataNotFoundException;
 
 
 }

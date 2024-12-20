@@ -32,7 +32,7 @@ logging:
     root: info
 
 jwt:
-  expiration: 5000
+  expiration: 86400
   secret-key: 2423bodsagtstor5642ellsdasfu1fts1114asdfvzxb
 #  second
 #    30 ngay = 30 * 24 * 60 * 60

@@ -20,7 +20,7 @@ public class OrderDetailRes extends BaseResponse {
     private int numberOfProducts;
 
     @JsonProperty("total_money")
-    private Float totalMoney;
+    private Long totalMoney;
 
     @JsonProperty("color")
     private String color;

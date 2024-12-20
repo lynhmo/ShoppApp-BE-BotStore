@@ -5,6 +5,7 @@ import com.llu1ts.shopapp.common.ApiPageResponse;
 import com.llu1ts.shopapp.dto.OrderDetailDTO;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.OrderDetailRes;
+import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.OrderDetailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,19 +33,15 @@ public class OrderDetailCtrl {
     private final OrderDetailService orderDetailService;
 
     @PostMapping
-    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult bindingResult) {
-        try {
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
-            }
-            return ResponseEntity.ok().body(orderDetailService.createOrderDetail(orderDetailDTO));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult bindingResult) throws Exception {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errors.toString());
         }
+        return ResponseEntity.ok().body(orderDetailService.createOrderDetail(orderDetailDTO));
     }
 
 
@@ -68,10 +65,14 @@ public class OrderDetailCtrl {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrderDetail(@PathVariable Long id) throws DataNotFoundException {
+    public ResponseEntity<SuccessResponse> deleteOrderDetail(@PathVariable Long id) throws Exception {
         orderDetailService.deleteOrderDetail(id);
-        return ResponseEntity.ok().body("Deleted order detail");
+        return ResponseEntity.ok().body(new SuccessResponse("Deleted order detail", "1", null));
     }
 
-
+    @DeleteMapping("/order/{orderID}")
+    public ResponseEntity<SuccessResponse> deleteAllOrderDetail(@PathVariable Long orderID) throws DataNotFoundException {
+        orderDetailService.deleteAllOrderDetail(orderID);
+        return ResponseEntity.ok(new SuccessResponse("Deleted all order detail", "1", null));
+    }
 }

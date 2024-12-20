@@ -126,7 +126,8 @@ public class WebSecurityConfig {
 
     private String[] getUserDeleteEndpoints() {
         return new String[]{
-                apiContextPath + "/order-details/*"
+                apiContextPath + "/order-details/*",
+                apiContextPath + "/order-details/order/*"
         };
     }
 
