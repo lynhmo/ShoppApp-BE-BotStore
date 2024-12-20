@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,7 @@ public class ProductImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "productCache", key = "#id")
     public ProductRes getProductById(long id) throws Exception {
         Product product = productRepository.findById(id).orElseThrow(() ->
                 new DataNotFoundException("Cannot found product with id: " + id));
