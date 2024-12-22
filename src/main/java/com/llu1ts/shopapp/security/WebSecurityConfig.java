@@ -135,6 +135,7 @@ public class WebSecurityConfig {
         return new String[]{
                 apiContextPath + "/orders",
                 apiContextPath + "/order-details",
+                apiContextPath + "/payment/*",
                 apiContextPath + "/order-details/*",
         };
     }
