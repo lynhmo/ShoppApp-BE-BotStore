@@ -1,8 +1,10 @@
 package com.llu1ts.shopapp.controller;
 
+import com.google.gson.Gson;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -61,6 +63,9 @@ public class PaymentCtrl {
     @Value("${momo.url}")
     private String returnUrl;
 
+    @Autowired
+    private Gson gson;
+
 
     @PostMapping("/momo")
     public ResponseEntity<?> createMomoPayment(@RequestBody PaymentRequest paymentRequest) {
@@ -70,13 +75,14 @@ public class PaymentCtrl {
         String accessKey = "F8BBA842ECF85";
         String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
         String requestId = partnerCode + "_" + UUID.randomUUID();
-        String orderId = String.valueOf(paymentRequest.getOrderId());
+        String orderId = String.valueOf(paymentRequest.getOrderId()) + UUID.randomUUID();
         String orderInfo = "pay-with-momo";
         String redirectUrl = returnUrl;
         String ipnUrl = "https://callback.url/notify";
         String requestType = PaymentType.getTypeById(paymentRequest.paymentType);
         long amount = paymentRequest.getAmount();
-        String extraData = ""; // Optional
+        String extraData = String.valueOf(paymentRequest.getOrderId());
+//        String extraData = Collections.singletonMap("orderId",paymentRequest.getOrderId()); // Optional
 
         // Tạo chữ ký (signature)
         // Tạo path param

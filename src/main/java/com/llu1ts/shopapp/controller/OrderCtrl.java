@@ -2,6 +2,7 @@ package com.llu1ts.shopapp.controller;
 
 
 import com.llu1ts.shopapp.dto.OrderDTO;
+import com.llu1ts.shopapp.dto.UpdateOrderStatus;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.OrderService;
@@ -71,11 +72,11 @@ public class OrderCtrl {
     }
 
     @PutMapping("/status")
-    public ResponseEntity<?> updateOrderStatus(@RequestParam long orderId,
-                                               @RequestParam long userId,
-                                               @RequestParam String orderStatus) throws DataNotFoundException {
-        orderService.updateOrderStatus(userId, orderId, orderStatus);
-        return ResponseEntity.ok(new SuccessResponse("Update order to " + orderStatus, "1", null));
+    public ResponseEntity<?> updateOrderStatus(
+            @RequestBody UpdateOrderStatus updateOrderStatus
+    ) throws DataNotFoundException {
+        orderService.updateOrderStatus(updateOrderStatus.getUserId(), updateOrderStatus.getOrderId(), updateOrderStatus.getOrderStatus());
+        return ResponseEntity.ok(new SuccessResponse("Update order to " + updateOrderStatus.getOrderStatus(), "1", null));
     }
 
     @DeleteMapping("/{id}")

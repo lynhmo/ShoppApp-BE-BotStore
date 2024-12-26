@@ -117,7 +117,7 @@ public class OrderImpl implements OrderService {
             throw new DataNotFoundException("PLease contact admin to update order status");
         }
 
-        if (!orderStatus.equalsIgnoreCase(OrderStatus.PENDING)&& lstPending.isEmpty()) {
+        if (!orderStatus.equalsIgnoreCase(OrderStatus.PENDING) && lstPending.isEmpty()) {
             Order order = new Order();
             order.setUserId(user);
             order.setOrderDate(new Date(System.currentTimeMillis()));
