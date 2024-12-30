@@ -1,0 +1,50 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    environment:
+      MYSQL_ROOT_PASSWORD: 1024
+      MYSQL_DATABASE: shopapp
+      MYSQL_USER: root
+      MYSQL_PASSWORD:
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  maven-builder:
+    image: maven:3.9-eclipse-temurin-17
+    container_name: maven_builder
+    working_dir: /app
+    volumes:
+      - ../:/app
+      - C:/Users/Linh/.m2:/root/.m2
+    command: mvn clean package -DskipTests
+    depends_on:
+      - mariadb
+
+  app:
+    image: eclipse-temurin:17-jdk
+    container_name: java_app
+    working_dir: /app
+    volumes:
+      - ../target:/app
+    command: ["java", "-jar", "shop-app-0.0.1.jar"]
+    depends_on:
+      - mariadb
+      - maven-builder
+    environment:
+      DB_HOST: mariadb
+      DB_USERNAME: user
+      DB_PASSWORD:
+      LOGGING: info
+      TOKEN_EXP: 86400
+      TOKEN_SECRET_KEY: 2423bodsagtstor5642ellsdasfu1fts1114asdfvzxb
+    ports:
+      - "2345:2345"
+
+volumes:
+  mariadb_data:
+    driver: local
+  maven_cache:
+    driver: local
