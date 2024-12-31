@@ -24,7 +24,11 @@ public interface ProductService {
 
     void deleteProduct(long id) throws DataNotFoundException;
 
+    void deleteManyProduct(List<Long> ids) throws DataNotFoundException;
+
     boolean existsProductByName(String productName);
 
     List<ProductImage> createProductImage(long productId, ImageUpload imageUpload) throws DataNotFoundException, IOException;
+
+    List<ProductRes> searchFuzzyProduct(String query);
 }

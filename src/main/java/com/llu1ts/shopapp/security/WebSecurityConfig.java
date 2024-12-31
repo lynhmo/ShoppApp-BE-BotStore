@@ -86,6 +86,7 @@ public class WebSecurityConfig {
                 apiContextPath + "/categories",
                 apiContextPath + "/products",
                 apiContextPath + "/products/v2",
+                apiContextPath + "/products/delete-many",
                 apiContextPath + "/products/uploads/*"
         };
     }
@@ -110,6 +111,7 @@ public class WebSecurityConfig {
                 apiContextPath + "/categories",
                 apiContextPath + "/categories/*",
                 apiContextPath + "/products",
+                apiContextPath + "/products/search",
                 apiContextPath + "/products/*"
         };
     }

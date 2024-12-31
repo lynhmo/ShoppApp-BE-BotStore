@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 public class ProductDTO {
     @NotBlank
-    @Size(min = 5, max = 200, message = "Title must be between 3 to 200 characters")
+    @Size(min = 5, max = 200, message = "Title must be between 5 to 200 characters")
     private String name;
 
     @Min(value = 0, message = "Price must be greater than 0 or equal to 0")
@@ -22,6 +22,8 @@ public class ProductDTO {
     private Float price;
 
     private MultipartFile thumbnail;
+
+    private Boolean isDeleted;
 
     private String description;
 

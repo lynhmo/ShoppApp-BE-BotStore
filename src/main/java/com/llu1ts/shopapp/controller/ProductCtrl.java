@@ -4,9 +4,11 @@ package com.llu1ts.shopapp.controller;
 import com.github.javafaker.Faker;
 import com.llu1ts.shopapp.common.ApiPageResponse;
 import com.llu1ts.shopapp.common.ImageUpload;
+import com.llu1ts.shopapp.dto.DeleteManyDto;
 import com.llu1ts.shopapp.dto.ProductDTO;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.ProductRes;
+import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,11 @@ public class ProductCtrl {
         return ResponseEntity.ok(productService.getProductById(prodId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductRes>> searchProduct(@RequestParam String query) throws Exception {
+        return ResponseEntity.ok(productService.searchFuzzyProduct(query));
+    }
+
     @PostMapping
     public ResponseEntity<?> insertProduct(@Valid @RequestBody ProductDTO productDTO,
                                            BindingResult bindingResult) throws DataNotFoundException {
@@ -90,15 +97,21 @@ public class ProductCtrl {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable long id, @RequestBody ProductDTO product) throws DataNotFoundException {
+    public ResponseEntity<ProductRes> updateProduct(@PathVariable long id, @RequestBody ProductDTO product) throws DataNotFoundException {
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int id) throws DataNotFoundException {
+    public ResponseEntity<SuccessResponse> deleteProduct(@PathVariable int id) throws DataNotFoundException {
         productService.deleteProduct(id);
-        return ResponseEntity.ok("Deleted successfully");
+        return ResponseEntity.ok(new SuccessResponse("Deleted successfully", "200", null));
+    }
+
+    @PostMapping("/delete-many")
+    public ResponseEntity<SuccessResponse> deleteManyProduct(@RequestBody DeleteManyDto dto) throws DataNotFoundException {
+        productService.deleteManyProduct(dto.getIds());
+        return ResponseEntity.ok(new SuccessResponse("Deleted many successfully", "200", null));
     }
 
 

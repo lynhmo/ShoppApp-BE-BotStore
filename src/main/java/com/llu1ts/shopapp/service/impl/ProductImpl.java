@@ -49,6 +49,17 @@ public class ProductImpl implements ProductService {
     private final ProductImageRepository productImageRepository;
     private final ModelMapper modelMapper;
 
+    @Override
+    @Cacheable(value = "productSearchCache", key = "#query.trim().toLowerCase()")
+    public List<ProductRes> searchFuzzyProduct(String query) {
+       List<Product> productList = productRepository.searchFuzzyByName(query);
+       List<ProductRes> productResList = new ArrayList<>();
+       for (Product product : productList) {
+           ProductRes productRes = modelMapper.map(product, ProductRes.class);
+           productResList.add(productRes);
+       }
+       return productResList;
+    }
 
     @Override
     public ProductRes create(ProductDTO dto) throws DataNotFoundException {
@@ -141,6 +152,14 @@ public class ProductImpl implements ProductService {
                 new DataNotFoundException("Product not found"));
         product.setIsDeleted(true);
         productRepository.save(product);
+    }
+
+
+    @Override
+    public void deleteManyProduct(List<Long> ids) throws DataNotFoundException {
+        for (long id : ids) {
+            deleteProduct(id);
+        }
     }
 
     @Override

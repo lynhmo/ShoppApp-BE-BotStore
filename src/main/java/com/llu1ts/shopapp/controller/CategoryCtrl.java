@@ -2,6 +2,8 @@ package com.llu1ts.shopapp.controller;
 
 import com.llu1ts.shopapp.dto.CategoryDTO;
 import com.llu1ts.shopapp.entity.Category;
+import com.llu1ts.shopapp.exception.DataNotFoundException;
+import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -79,12 +81,8 @@ public class CategoryCtrl {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable long id) {
-        try {
-            service.deleteCategory(id);
-            return ResponseEntity.ok("Deleted");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.toString());
-        }
+    public ResponseEntity<SuccessResponse> deleteCategory(@PathVariable long id) throws DataNotFoundException {
+        service.deleteCategory(id);
+        return ResponseEntity.ok(new SuccessResponse("Deleted success fully", "200", null));
     }
 }
