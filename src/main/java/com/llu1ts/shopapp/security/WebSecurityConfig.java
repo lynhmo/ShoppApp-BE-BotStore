@@ -46,6 +46,7 @@ public class WebSecurityConfig {
 
                         //Admin Request (Những enpoint mà chỉ có admin dùng được)
                         .requestMatchers(HttpMethod.PUT, getAdminPutEndpoints()).hasRole(ADMIN_ROLE)
+                        .requestMatchers(HttpMethod.GET, getAdminGetEndpoints()).hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.POST, getAdminPostEndpoints()).hasRole(ADMIN_ROLE)
                         .requestMatchers(HttpMethod.DELETE, getAdminDeleteEndpoints()).hasRole(ADMIN_ROLE)
 
@@ -74,9 +75,16 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    private String[] getAdminGetEndpoints() {
+        return new String[]{
+                apiContextPath + "/users/all"
+        };
+    }
+
     private String[] getAdminPutEndpoints() {
         return new String[]{
                 apiContextPath + "/categories/*",
+                apiContextPath + "/users/*",
                 apiContextPath + "/products/*"
         };
     }
@@ -95,6 +103,7 @@ public class WebSecurityConfig {
         return new String[]{
                 apiContextPath + "/categories/*",
                 apiContextPath + "/products/*",
+                apiContextPath + "/users/*",
                 apiContextPath + "/orders/*"
         };
     }
@@ -120,6 +129,7 @@ public class WebSecurityConfig {
         return new String[]{
                 apiContextPath + "/orders/*",
                 apiContextPath + "/orders/user/*",
+                apiContextPath + "/orders/user/detail/*",
                 apiContextPath + "/order-details/*",
                 apiContextPath + "/users/user-details/*",
                 apiContextPath + "/order-details/order/*"

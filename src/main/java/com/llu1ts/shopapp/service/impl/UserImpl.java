@@ -2,8 +2,8 @@ package com.llu1ts.shopapp.service.impl;
 
 
 import com.llu1ts.shopapp.dto.LoginDTO;
-import com.llu1ts.shopapp.dto.OrderDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
+import com.llu1ts.shopapp.dto.UserUpdateDTO;
 import com.llu1ts.shopapp.entity.Order;
 import com.llu1ts.shopapp.entity.OrderStatus;
 import com.llu1ts.shopapp.entity.Role;
@@ -16,13 +16,11 @@ import com.llu1ts.shopapp.repo.UserRepository;
 import com.llu1ts.shopapp.response.JwtResponse;
 import com.llu1ts.shopapp.response.UserResponse;
 import com.llu1ts.shopapp.security.JwtTokenUtils;
-import com.llu1ts.shopapp.service.svc.OrderService;
 import com.llu1ts.shopapp.service.svc.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,9 +47,26 @@ public class UserImpl implements UserService {
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
 
+    @Override
+    public void deleteUser(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new AuthorizationException("User not found");
+        }
+        user.get().setIsActive(false);
+        userRepository.save(user.get());
+    }
 
-    @Value("${jwt.expiration}")
-    private long expirationTime;
+    @Override
+    public List<UserResponse> allUsers() {
+        List<UserResponse> users = new ArrayList<>();
+        userRepository.findAll().forEach(user -> {
+            UserResponse userResponse = new UserResponse();
+            BeanUtils.copyProperties(user, userResponse);
+            users.add(userResponse);
+        });
+        return users;
+    }
 
     @Override
     public void createUser(UserDTO userDTO) throws DataNotFoundException {
@@ -125,7 +143,19 @@ public class UserImpl implements UserService {
     @Override
     public UserResponse getUserById(Long id) throws DataNotFoundException {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String uid = jwtTokenUtils.getUserId(request.getHeader("Authorization").substring(7));
+        String token = request.getHeader("Authorization").substring(7);
+        String uid = jwtTokenUtils.getUserId(token);
+
+        if (jwtTokenUtils.isAdmin(token)) {
+            Optional<User> user = userRepository.findById(id);
+            if (user.isEmpty()) {
+                throw new DataNotFoundException("User not found");
+            }
+            UserResponse userResponse = new UserResponse();
+            BeanUtils.copyProperties(user.get(), userResponse);
+            return userResponse;
+        }
+
         if (!uid.equals(id.toString())) {
             throw new AuthorizationException("Cannot get data from other user");
         }
@@ -139,7 +169,26 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public UserResponse updateUser(Long id, UserDTO user) throws DataNotFoundException {
-        return null;
+    public UserResponse updateUser(Long id, UserUpdateDTO dto) throws DataNotFoundException {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new AuthorizationException("Bad credentials");
+        }
+        Role role = roleRepository.findById(dto.getRoleId()).orElseThrow(() ->
+                new DataNotFoundException("Role not found")
+        );
+
+        BeanUtils.copyProperties(dto, user.get());
+        user.get().setRole(role);
+        if (dto.getBirthday() != null) {
+            user.get().setDateOfBirth(Date.from(dto.getBirthday().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        }
+        userRepository.updateUser(user.get());
+
+        UserResponse userResponse = new UserResponse();
+        BeanUtils.copyProperties(user.get(), userResponse);
+
+        return userResponse;
     }
 }

@@ -104,6 +104,12 @@ public class JwtTokenUtils {
                 && !isTokenExpired(token));
     }
 
+    //check admin
+    public Boolean isAdmin(String token) {
+        String role = getRole(token);
+        return role.toLowerCase().equals("admin");
+    }
+
     //get Role
     public String getRole(String token) {
         return extractClaims(token, claims -> claims.get("role")).toString();
