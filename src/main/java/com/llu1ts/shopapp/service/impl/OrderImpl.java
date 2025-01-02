@@ -3,22 +3,29 @@ package com.llu1ts.shopapp.service.impl;
 import com.llu1ts.shopapp.common.ApiPageResponse;
 import com.llu1ts.shopapp.dto.OrderDTO;
 import com.llu1ts.shopapp.entity.Order;
+import com.llu1ts.shopapp.entity.OrderDetail;
 import com.llu1ts.shopapp.entity.OrderStatus;
 import com.llu1ts.shopapp.entity.User;
 import com.llu1ts.shopapp.exception.AuthorizationException;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.repo.OrderRepository;
 import com.llu1ts.shopapp.repo.UserRepository;
+import com.llu1ts.shopapp.response.OrderDetailWithProductImage;
 import com.llu1ts.shopapp.response.OrderRes;
+import com.llu1ts.shopapp.response.OrderResDetail;
+import com.llu1ts.shopapp.response.ProductResponseImage;
 import com.llu1ts.shopapp.service.svc.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +38,42 @@ public class OrderImpl implements OrderService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
+
+    @Override
+//    @Cacheable(value = "abc", key = "#userId")
+    public List<OrderResDetail> getAllOrderDetailByUserId(long userId) throws DataNotFoundException {
+        // check user co ton tai hay khong
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new DataNotFoundException("User not found"));
+        List<Order> orders = orderRepository.findByUserId(user);
+        List<OrderResDetail> orderResDetails = new ArrayList<>();
+        for (Order order : orders) {
+            if (order.getStatus().equals(OrderStatus.PENDING) || Boolean.TRUE.equals(order.getIsDeleted())) {
+                continue;
+            }
+            OrderResDetail orderResDetail = modelMapper.map(order, OrderResDetail.class);
+            // Lay ra id roi set vao response
+            orderResDetail.setUserId(user.getId());
+            orderResDetail.setOrderId(order.getId());
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            List<OrderDetailWithProductImage> resOrderDetails = new ArrayList<>();
+            for (OrderDetail orderDetail : orderDetails) {
+                //Lay ra detail
+                OrderDetailWithProductImage orderDetailWithProductImage = modelMapper.map(orderDetail, OrderDetailWithProductImage.class);
+                ProductResponseImage productResponseImage = modelMapper.map(orderDetail.getProduct(), ProductResponseImage.class);
+                productResponseImage.setCategoryId(orderDetail.getProduct().getCategory().getId());
+                //set anh
+                String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(orderDetail.getProduct().getThumbnail());
+                productResponseImage.setThumbnail(image);
+                orderDetailWithProductImage.setProduct(productResponseImage);
+                // add vao list
+                resOrderDetails.add(orderDetailWithProductImage);
+            }
+            orderResDetail.setOrderDetails(resOrderDetails);
+            orderResDetails.add(orderResDetail);
+        }
+        return orderResDetails;
+    }
 
     @Override
     public OrderRes createOrder(OrderDTO orderDTO) throws DataNotFoundException {

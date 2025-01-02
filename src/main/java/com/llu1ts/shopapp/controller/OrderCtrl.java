@@ -51,6 +51,11 @@ public class OrderCtrl {
         return ResponseEntity.ok(orderService.getAllOrdersByUserId(userId, PageRequest.of(page, size)));
     }
 
+    @GetMapping("/user/detail/{userId}")
+    public ResponseEntity<?> getOrdersAndDetailByUserId(@PathVariable long userId) throws DataNotFoundException {
+        return ResponseEntity.ok(orderService.getAllOrderDetailByUserId(userId));
+    }
+
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderByOrderId(@PathVariable int orderId) throws DataNotFoundException {
         return ResponseEntity.ok(orderService.getOrderByOrderId(orderId));

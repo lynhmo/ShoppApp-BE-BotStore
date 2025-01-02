@@ -17,6 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByStatusAndUserId(String status, User userId);
 
+    List<Order> findByUserId(User userId);
+
     @Query("update Order o set o.totalMoney = :totalMoney where o.id = :id")
     @Modifying
     void updateTotalMoneyById(Float totalMoney, Long id);

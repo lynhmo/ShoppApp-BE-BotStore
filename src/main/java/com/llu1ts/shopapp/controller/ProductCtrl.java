@@ -8,10 +8,12 @@ import com.llu1ts.shopapp.dto.DeleteManyDto;
 import com.llu1ts.shopapp.dto.ProductDTO;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.ProductRes;
+import com.llu1ts.shopapp.response.ProductResponseImage;
 import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -53,8 +57,18 @@ public class ProductCtrl {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductRes>> searchProduct(@RequestParam String query) throws Exception {
-        return ResponseEntity.ok(productService.searchFuzzyProduct(query));
+    public ResponseEntity<List<ProductResponseImage>> searchProduct(@RequestParam String query) throws Exception {
+        List<ProductRes> productRes = productService.searchFuzzyProduct(query);
+        List<ProductResponseImage> productResponseImages = new ArrayList<>();
+        for (ProductRes product : productRes) {
+            ProductResponseImage productResponseImage = new ProductResponseImage();
+            BeanUtils.copyProperties(product, productResponseImage);
+            String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(product.getThumbnail());
+            productResponseImage.setThumbnail(image);
+            productResponseImages.add(productResponseImage);
+        }
+
+        return ResponseEntity.ok(productResponseImages);
     }
 
     @PostMapping
