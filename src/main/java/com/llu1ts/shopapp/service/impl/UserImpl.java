@@ -2,6 +2,7 @@ package com.llu1ts.shopapp.service.impl;
 
 
 import com.llu1ts.shopapp.dto.LoginDTO;
+import com.llu1ts.shopapp.dto.PasswordDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
 import com.llu1ts.shopapp.dto.UserUpdateDTO;
 import com.llu1ts.shopapp.entity.Order;
@@ -46,6 +47,40 @@ public class UserImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
+
+    @Override
+    public void updatePassword(Long uid, PasswordDTO passwordDTO) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = request.getHeader("Authorization").substring(7);
+        String uidFromToken = jwtTokenUtils.getUserId(token);
+
+        // Check nếu user hiện tại có thay đổi pass của user khác không
+        if (!uidFromToken.equals(uid.toString())) {
+            throw new AuthorizationException("Không cho phép thay đổi mật khẩu");
+        }
+
+        // Get info user hiện tại
+        Optional<User> user = userRepository.findById(uid);
+        if (user.isEmpty()) {
+            throw new AuthorizationException("User not found");
+        }
+
+        // So sánh pass
+        String oldPassword = user.get().getPassword();
+        String oldPasswordFromRequest = passwordDTO.getOldPassword();
+        if (!passwordEncoder.matches(oldPasswordFromRequest,oldPassword)) {
+            throw new AuthorizationException("Old password doesn't match");
+        }
+
+        // So sánh 2 pass mới
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmPassword())) {
+            throw new AuthorizationException("Confirm password doesn't match");
+        }
+
+        String encryptedPassword = passwordEncoder.encode(passwordDTO.getNewPassword());
+        user.get().setPassword(encryptedPassword);
+        userRepository.save(user.get());
+    }
 
     @Override
     public void deleteUser(Long id) {

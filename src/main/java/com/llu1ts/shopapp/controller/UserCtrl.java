@@ -2,6 +2,7 @@ package com.llu1ts.shopapp.controller;
 
 
 import com.llu1ts.shopapp.dto.LoginDTO;
+import com.llu1ts.shopapp.dto.PasswordDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
 import com.llu1ts.shopapp.dto.UserUpdateDTO;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
@@ -85,6 +86,20 @@ public class UserCtrl {
             return ResponseEntity.badRequest().body(new ErrorResponse(errors.toString(), "400"));
         }
         return ResponseEntity.ok(userService.updateUser(id, user));
+    }
+
+
+    @PutMapping("/update-password/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody PasswordDTO passwordDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(new ErrorResponse(errors.toString(), "400"));
+        }
+        userService.updatePassword(id, passwordDTO);
+        return ResponseEntity.ok(new SuccessResponse("Update successful", "1", null));
     }
 
 

@@ -1,6 +1,7 @@
 package com.llu1ts.shopapp.service.svc;
 
 import com.llu1ts.shopapp.dto.LoginDTO;
+import com.llu1ts.shopapp.dto.PasswordDTO;
 import com.llu1ts.shopapp.dto.UserDTO;
 import com.llu1ts.shopapp.dto.UserUpdateDTO;
 import com.llu1ts.shopapp.exception.AuthorizationException;
@@ -22,4 +23,6 @@ public interface UserService {
     List<UserResponse> allUsers() throws DataNotFoundException;
 
     void deleteUser(Long id) throws DataNotFoundException;
+
+    void updatePassword(Long uid, PasswordDTO password);
 }
