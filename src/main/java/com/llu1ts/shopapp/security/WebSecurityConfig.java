@@ -84,7 +84,6 @@ public class WebSecurityConfig {
     private String[] getAdminPutEndpoints() {
         return new String[]{
                 apiContextPath + "/categories/*",
-                apiContextPath + "/users/*",
                 apiContextPath + "/products/*"
         };
     }
@@ -155,6 +154,7 @@ public class WebSecurityConfig {
     private String[] getUserPutEndpoints() {
         return new String[]{
                 apiContextPath + "/orders/*",
+                apiContextPath + "/users/*",
                 apiContextPath + "/users/update-password/*",
                 apiContextPath + "/orders/status",
                 apiContextPath + "/order-details/*"
