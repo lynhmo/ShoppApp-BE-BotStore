@@ -77,7 +77,8 @@ public class WebSecurityConfig {
 
     private String[] getAdminGetEndpoints() {
         return new String[]{
-                apiContextPath + "/users/all"
+                apiContextPath + "/users/all",
+                apiContextPath + "/orders/all-orders"
         };
     }
 

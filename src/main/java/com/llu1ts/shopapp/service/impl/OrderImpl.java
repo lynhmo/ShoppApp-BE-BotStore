@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -40,7 +42,33 @@ public class OrderImpl implements OrderService {
 
 
     @Override
-//    @Cacheable(value = "abc", key = "#userId")
+//    @Cacheable(value = "allOrders")
+    public List<OrderRes> allOrders() throws DataNotFoundException {
+        List<Order> orders = orderRepository.findAll();
+        List<User> users = userRepository.findAll();
+        List<OrderRes> orderResList = new ArrayList<>();
+        for (Order order : orders) {
+            if (Objects.equals(order.getStatus(), OrderStatus.PENDING)) {
+                continue;
+            }
+            OrderRes orderRes = modelMapper.map(order, OrderRes.class);
+            Optional<User> user = users.stream().filter(u -> u.getId() == order.getUserId().getId())
+                    .findFirst();
+            if (user.isEmpty()){
+                throw new DataNotFoundException("Khong có dữ liệu người dùng: Order");
+            }
+            String name = user.get().getFullName();
+            String address = user.get().getAddress();
+
+            orderRes.setFullName(name);
+            orderRes.setAddress(address);
+
+            orderResList.add(orderRes);
+        }
+        return orderResList;
+    }
+
+    @Override
     public List<OrderResDetail> getAllOrderDetailByUserId(long userId) throws DataNotFoundException {
         // check user co ton tai hay khong
         User user = userRepository.findById(userId).orElseThrow(() ->

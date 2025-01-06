@@ -14,6 +14,8 @@ public interface OrderService {
 
     OrderRes getOrderByOrderId(long orderId) throws DataNotFoundException;
 
+    List<OrderRes> allOrders() throws DataNotFoundException;
+
     ApiPageResponse<OrderRes> getAllOrdersByUserId(long user, Pageable pageable) throws DataNotFoundException;
 
     List<OrderResDetail> getAllOrderDetailByUserId(long orderId) throws DataNotFoundException;

@@ -61,6 +61,11 @@ public class OrderCtrl {
         return ResponseEntity.ok(orderService.getOrderByOrderId(orderId));
     }
 
+    @GetMapping("/all-orders")
+    public ResponseEntity<?> getAllOrder() throws DataNotFoundException {
+        return ResponseEntity.ok(orderService.allOrders());
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id,
