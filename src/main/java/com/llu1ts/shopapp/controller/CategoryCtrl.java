@@ -3,6 +3,7 @@ package com.llu1ts.shopapp.controller;
 import com.llu1ts.shopapp.dto.CategoryDTO;
 import com.llu1ts.shopapp.entity.Category;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
+import com.llu1ts.shopapp.exception.ErrorResponse;
 import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.CategoryService;
 import jakarta.validation.Valid;
@@ -39,44 +40,32 @@ public class CategoryCtrl {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategory(@PathVariable long id) {
-        try {
+    public ResponseEntity<?> getCategory(@PathVariable long id) throws DataNotFoundException {
             return ResponseEntity.ok(service.getCategoryById(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.toString());
-        }
     }
 
     @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO category, BindingResult bindingResult) {
-        try {
             if (bindingResult.hasErrors()) {
                 List<String> errors = bindingResult.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
+                return ResponseEntity.badRequest().body(new ErrorResponse(errors.toString(), "500"));
             }
             return ResponseEntity.ok(service.createCategory(category));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.toString());
-        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable long id, @RequestBody @Valid CategoryDTO category, BindingResult bindingResult) {
-        try {
+    public ResponseEntity<?> updateCategory(@PathVariable long id, @RequestBody @Valid CategoryDTO category, BindingResult bindingResult) throws DataNotFoundException {
             if (bindingResult.hasErrors()) {
                 List<String> errors = bindingResult.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errors.toString());
+                return ResponseEntity.badRequest().body(new ErrorResponse(errors.toString(), "500"));
             }
             return ResponseEntity.ok(service.updateCategory(id, category));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.toString());
-        }
     }
 
 
