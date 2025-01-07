@@ -16,6 +16,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findAllByIsDeleted(Boolean isDeleted, Pageable pageable);
 
+    @Query("SELECT p FROM Product p WHERE p.isDeleted = false ORDER BY p.createAt DESC")
+    Page<Product> selectNewProduct(Pageable pageable);
+
+
+    @Query("SELECT p FROM Product p WHERE p.isDeleted = false ORDER BY p.price ASC")
+    Page<Product> selectCheapProduct(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> searchFuzzyByName(@Param("keyword") String keyword);

@@ -148,4 +148,25 @@ public class ProductCtrl {
 
         return ResponseEntity.ok("Faked");
     }
+
+
+
+
+    @GetMapping("/search/newest")
+    public ResponseEntity<?> getProduct(){
+        return ResponseEntity.ok(productService.getNewest());
+    }
+
+
+    @GetMapping("/search/popular")
+    public ResponseEntity<?> getPopularProducts(){
+        return ResponseEntity.ok(productService.getPopularProducts());
+    }
+
+
+
+    @GetMapping("/search/cheap")
+    public ResponseEntity<?> cheap(){
+        return ResponseEntity.ok(productService.getCheapProduct());
+    }
 }

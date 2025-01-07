@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
@@ -24,4 +25,9 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
 
     @Query("SELECT SUM(od.totalMoney) FROM OrderDetail od WHERE od.order.id = :orderId and od.isDeleted=:isDelete")
     Float getTotalMoneyOfAllOrderDetailByOrderIdAndIsDelete(Long orderId, Boolean isDelete);
+
+
+
+    @Query(value = "select product_id as ProductID, SUM(number_of_product) as totalQuantity from order_details group by product_id order by totalQuantity DESC",nativeQuery = true)
+    Page<Object[]> getTotalQuantity(Pageable pageable);
 }

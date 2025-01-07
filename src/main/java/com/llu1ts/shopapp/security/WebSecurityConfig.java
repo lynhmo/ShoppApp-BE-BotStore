@@ -119,6 +119,9 @@ public class WebSecurityConfig {
         return new String[]{
                 apiContextPath + "/categories",
                 apiContextPath + "/categories/*",
+                apiContextPath + "/products/search/newest",
+                apiContextPath + "/products/search/popular",
+                apiContextPath + "/products/search/cheap",
                 apiContextPath + "/products",
                 apiContextPath + "/products/search",
                 apiContextPath + "/products/*"

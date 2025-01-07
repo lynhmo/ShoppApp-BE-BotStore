@@ -6,6 +6,7 @@ import com.llu1ts.shopapp.dto.ProductDTO;
 import com.llu1ts.shopapp.entity.ProductImage;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.ProductRes;
+import com.llu1ts.shopapp.response.ProductResponseImage;
 import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
@@ -31,4 +32,10 @@ public interface ProductService {
     List<ProductImage> createProductImage(long productId, ImageUpload imageUpload) throws DataNotFoundException, IOException;
 
     List<ProductRes> searchFuzzyProduct(String query);
+
+    List<ProductResponseImage> getNewest ();
+
+    List<ProductResponseImage> getCheapProduct();
+
+    List<ProductResponseImage> getPopularProducts ();
 }

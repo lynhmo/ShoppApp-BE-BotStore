@@ -12,9 +12,11 @@ import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.exception.ExceedDataException;
 import com.llu1ts.shopapp.exception.InvalidParamException;
 import com.llu1ts.shopapp.repo.CategoryRepository;
+import com.llu1ts.shopapp.repo.OrderDetailRepository;
 import com.llu1ts.shopapp.repo.ProductImageRepository;
 import com.llu1ts.shopapp.repo.ProductRepository;
 import com.llu1ts.shopapp.response.ProductRes;
+import com.llu1ts.shopapp.response.ProductResponseImage;
 import com.llu1ts.shopapp.service.svc.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +37,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,6 +54,59 @@ public class ProductImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
     private final ModelMapper modelMapper;
+    private final OrderDetailRepository orderDetailRepository;
+
+    @Override
+    public List<ProductResponseImage> getCheapProduct() {
+        Pageable top4 = PageRequest.of(0, 4);
+        List<Product> products = productRepository.selectCheapProduct(top4).getContent();
+        List<ProductResponseImage> productResList = new ArrayList<>();
+        for (Product product : products) {
+            ProductResponseImage productRes = modelMapper.map(product, ProductResponseImage.class);
+            String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(product.getThumbnail());
+            productRes.setCategoryId(product.getCategory().getId());
+            productRes.setThumbnail(image);
+            productResList.add(productRes);
+        }
+        return productResList;
+    }
+
+    @Override
+    public List<ProductResponseImage> getPopularProducts() {
+        Pageable top4 = PageRequest.of(0, 4);
+        Page<Object[]> products = orderDetailRepository.getTotalQuantity(top4);
+        List<ProductResponseImage> productResponseImages = new ArrayList<>();
+        products.getContent().forEach(result ->{
+            Integer id = (Integer) result[0];
+            Long productID = id.longValue();
+            Optional<Product> product = productRepository.findById(productID);
+            if (product.isPresent()) {
+                ProductResponseImage productRes = modelMapper.map(product.get(), ProductResponseImage.class);
+                String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(product.get().getThumbnail());
+                productRes.setThumbnail(image);
+                productRes.setCategoryId(product.get().getCategory().getId());
+                productResponseImages.add(productRes);
+            }
+        });
+        return productResponseImages;
+    }
+
+    @Override
+    public List<ProductResponseImage> getNewest() {
+        Pageable top8 = PageRequest.of(0, 4);
+        List<Product> products = productRepository.selectNewProduct(top8).getContent();
+        List<ProductResponseImage> productResList = new ArrayList<>();
+        for (Product product : products) {
+            ProductResponseImage productRes = modelMapper.map(product, ProductResponseImage.class);
+            String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(product.getThumbnail());
+            productRes.setCategoryId(product.getCategory().getId());
+            productRes.setThumbnail(image);
+            productResList.add(productRes);
+        }
+        return productResList;
+    }
+
+
 
     @Override
     @Cacheable(value = "productSearchCache", key = "#query.trim().toLowerCase()")
