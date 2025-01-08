@@ -169,4 +169,9 @@ public class ProductCtrl {
     public ResponseEntity<?> cheap(){
         return ResponseEntity.ok(productService.getCheapProduct());
     }
+
+    @GetMapping("/search/category")
+    public ResponseEntity<?> category(@RequestParam("categoryId") String categoryId){
+        return ResponseEntity.ok(productService.getSameCategoryProduct(categoryId));
+    }
 }

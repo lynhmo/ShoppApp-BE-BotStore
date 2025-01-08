@@ -68,7 +68,7 @@ public class UserImpl implements UserService {
         // So sánh pass
         String oldPassword = user.get().getPassword();
         String oldPasswordFromRequest = passwordDTO.getOldPassword();
-        if (!passwordEncoder.matches(oldPasswordFromRequest,oldPassword)) {
+        if (!passwordEncoder.matches(oldPasswordFromRequest, oldPassword)) {
             throw new AuthorizationException("Old password doesn't match");
         }
 
@@ -151,6 +151,9 @@ public class UserImpl implements UserService {
         Optional<User> user = userRepository.findByPhoneNumber(dto.getPhoneNumber());
         if (user.isEmpty()) {
             throw new AuthorizationException("Bad credentials");
+        }
+        if (Boolean.FALSE.equals(user.get().getIsActive())) {
+            throw new AuthorizationException("Người dùng đã bị vô hiệu hoá");
         }
         User currentUser = user.get();
         if (currentUser.getFacebookAccountId() == 0

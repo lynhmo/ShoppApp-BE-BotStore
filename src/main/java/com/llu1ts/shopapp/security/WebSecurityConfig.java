@@ -122,6 +122,7 @@ public class WebSecurityConfig {
                 apiContextPath + "/products/search/newest",
                 apiContextPath + "/products/search/popular",
                 apiContextPath + "/products/search/cheap",
+                apiContextPath + "/products/search/category",
                 apiContextPath + "/products",
                 apiContextPath + "/products/search",
                 apiContextPath + "/products/*"

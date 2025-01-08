@@ -37,5 +37,7 @@ public interface ProductService {
 
     List<ProductResponseImage> getCheapProduct();
 
+    List<ProductResponseImage> getSameCategoryProduct(String categoryId);
+
     List<ProductResponseImage> getPopularProducts ();
 }

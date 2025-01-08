@@ -56,6 +56,22 @@ public class ProductImpl implements ProductService {
     private final ModelMapper modelMapper;
     private final OrderDetailRepository orderDetailRepository;
 
+
+    @Override
+    public List<ProductResponseImage> getSameCategoryProduct(String categoryId) {
+        Pageable top4 = PageRequest.of(0, 4);
+        List<Product> products = productRepository.selectSameCategory(Long.valueOf(categoryId),top4).getContent();
+        List<ProductResponseImage> productResponseImages = new ArrayList<>();
+        for (Product product : products) {
+            ProductResponseImage productRes = modelMapper.map(product, ProductResponseImage.class);
+            String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(product.getThumbnail());
+            productRes.setCategoryId(product.getCategory().getId());
+            productRes.setThumbnail(image);
+            productResponseImages.add(productRes);
+        }
+        return productResponseImages;
+    }
+
     @Override
     public List<ProductResponseImage> getCheapProduct() {
         Pageable top4 = PageRequest.of(0, 4);

@@ -19,6 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false ORDER BY p.createAt DESC")
     Page<Product> selectNewProduct(Pageable pageable);
 
+    @Query("SELECT p FROM Product p WHERE p.isDeleted = false and  p.category.id = :#{#categoryID}  ORDER BY p.createAt DESC")
+    Page<Product> selectSameCategory(@Param("categoryID") Long category, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false ORDER BY p.price ASC")
     Page<Product> selectCheapProduct(Pageable pageable);
