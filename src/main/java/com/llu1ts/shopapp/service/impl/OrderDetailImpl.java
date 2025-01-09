@@ -10,14 +10,19 @@ import com.llu1ts.shopapp.repo.OrderDetailRepository;
 import com.llu1ts.shopapp.repo.OrderRepository;
 import com.llu1ts.shopapp.repo.ProductRepository;
 import com.llu1ts.shopapp.response.OrderDetailRes;
+import com.llu1ts.shopapp.response.OrderDetailWithProductImage;
+import com.llu1ts.shopapp.response.ProductResponseImage;
 import com.llu1ts.shopapp.service.svc.OrderDetailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +33,35 @@ public class OrderDetailImpl implements OrderDetailService {
     private final OrderDetailRepository orderDetailRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+
+
+    @Override
+    public List<OrderDetailWithProductImage> getAllOrderDetailWithProductAdmin(long orderDetailId) throws DataNotFoundException {
+        if (!orderRepository.existsById(orderDetailId)) {
+            throw new DataNotFoundException("Order not found");
+        }
+
+        Pageable pageable = PageRequest.of(0, 9999);
+        Page<OrderDetail> orderDetails = orderDetailRepository.findByOrderIdAndIsDeleted(orderDetailId, false, pageable);
+        List<OrderDetail> orderDetailList = orderDetails.getContent();
+        List<OrderDetailWithProductImage> orderDetailWithProductImages = new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetailList) {
+            OrderDetailWithProductImage orderDetailWithProductImage = new OrderDetailWithProductImage();
+            BeanUtils.copyProperties(orderDetail, orderDetailWithProductImage);
+
+            //Map product
+            ProductResponseImage productResponseImage = new ProductResponseImage();
+            Product product = orderDetail.getProduct();
+            productResponseImage.setCategoryId(product.getCategory().getId());
+            String image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(orderDetail.getProduct().getThumbnail());
+            productResponseImage.setThumbnail(image);
+            BeanUtils.copyProperties(product, productResponseImage);
+            orderDetailWithProductImage.setProduct(productResponseImage);
+
+            orderDetailWithProductImages.add(orderDetailWithProductImage);
+        }
+        return orderDetailWithProductImages;
+    }
 
     @Override
     public OrderDetailRes createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException {

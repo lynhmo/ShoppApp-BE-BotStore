@@ -3,8 +3,11 @@ package com.llu1ts.shopapp.controller;
 
 import com.llu1ts.shopapp.common.ApiPageResponse;
 import com.llu1ts.shopapp.dto.OrderDetailDTO;
+import com.llu1ts.shopapp.entity.Order;
+import com.llu1ts.shopapp.entity.OrderDetail;
 import com.llu1ts.shopapp.exception.DataNotFoundException;
 import com.llu1ts.shopapp.response.OrderDetailRes;
+import com.llu1ts.shopapp.response.OrderDetailWithProductImage;
 import com.llu1ts.shopapp.response.SuccessResponse;
 import com.llu1ts.shopapp.service.svc.OrderDetailService;
 import jakarta.validation.Valid;
@@ -56,6 +59,14 @@ public class OrderDetailCtrl {
                                                                                     @RequestParam(defaultValue = "10") int size) throws DataNotFoundException {
         return ResponseEntity.ok(orderDetailService.getAllOrderDetailByOrderId(orderID, PageRequest.of(page, size)));
     }
+
+
+    @GetMapping("/order/admin/{orderID}")
+    public ResponseEntity<List<OrderDetailWithProductImage>> apiPageResponseResponseEntity(@PathVariable Long orderID) throws DataNotFoundException {
+        return ResponseEntity.ok(orderDetailService.getAllOrderDetailWithProductAdmin(orderID));
+    }
+
+
 
     @PutMapping("/{detailOrderId}")
     public ResponseEntity<?> updateOrderDetail(

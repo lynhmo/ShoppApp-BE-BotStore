@@ -135,6 +135,7 @@ public class WebSecurityConfig {
                 apiContextPath + "/orders/user/*",
                 apiContextPath + "/orders/user/detail/*",
                 apiContextPath + "/order-details/*",
+                apiContextPath + "/order-details/order/admin/*",
                 apiContextPath + "/users/user-details/*",
                 apiContextPath + "/order-details/order/*"
         };
